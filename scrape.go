@@ -13,15 +13,16 @@ import (
 var spotifyURIPattern = regexp.MustCompile(`<(?:spotify:track:([a-zA-Z0-9]+)|https://open.spotify.com/track/([a-zA-Z0-9]+)(\?.*)?)>`)
 
 var scrapeCmd = &cobra.Command{
-	Use:  "scrape channel destination-playlist",
+	Use:  "scrape channel spotify-username destination-playlist",
 	RunE: scrape,
 	Args: cobra.ExactArgs(2),
 }
 
 func scrape(cmd *cobra.Command, args []string) error {
 	channelName := args[0]
-	playlistName := args[1]
-	r, err := client.GetPlaylistsForUser("rogpeppe")
+	username := args[1]
+	playlistName := args[2]
+	r, err := client.GetPlaylistsForUser(username)
 	if err != nil {
 		return errors.Note(err, nil, "cannot search")
 	}
@@ -33,7 +34,7 @@ func scrape(cmd *cobra.Command, args []string) error {
 		}
 	}
 	if plid == "" {
-		return errors.New("could not find heetch playlist")
+		return errors.New("could not find playlist. Are you sure it's publicly visible?")
 	}
 
 	if slackOAuthToken == "" {
